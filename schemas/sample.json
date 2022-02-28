@@ -1,0 +1,222 @@
+[
+  {
+    "NAME": "date",
+    "TYPE": "DATETIME",
+    "PARAMS": {
+      "NOW": true,
+      "FORMAT": "2006-01-02 15:04:05"
+    }
+  },
+  {
+    "NAME": "date_other_format",
+    "TYPE": "DATETIME",
+    "PARAMS": {
+      "NOW": true,
+      "FORMAT": "2006-01-02T15:04:05Z"
+    }
+  },
+  {
+    "NAME": "timestamp_now",
+    "TYPE": "TIMESTAMP",
+    "PARAMS": {
+      "NOW": true
+    }
+  },
+  {
+    "NAME": "timestamp_incremental",
+    "TYPE": "TIMESTAMP",
+    "PARAMS": {
+      "INCREMENTAL": true,
+      "STEP": "3s",
+      "START": 1645800095
+    }
+  },
+  {
+    "NAME": "datetime_incremental",
+    "TYPE": "DATETIME",
+    "PARAMS": {
+      "INCREMENTAL": true,
+      "STEP": "30m",
+      "FORMAT": "2006-01-02T15:04:05Z"
+    }
+  },
+  {
+    "NAME": "int_normal",
+    "TYPE": "INTEGER",
+    "PARAMS": {
+      "DISTRIBUTION": "NORMAL",
+      "MU": 1000,
+      "SIGMA": 100
+    }
+  },
+  {
+    "NAME": "int_uniform",
+    "TYPE": "INTEGER",
+    "PARAMS": {
+      "DISTRIBUTION": "UNIFORM",
+      "MIN": 0,
+      "MAX": 1000
+    }
+  },
+  {
+    "NAME": "int_random",
+    "TYPE": "INTEGER",
+    "PARAMS": {
+      "DISTRIBUTION": "RANDOM"
+    }
+  },
+  {
+    "NAME": "int_random_max",
+    "TYPE": "INTEGER",
+    "PARAMS": {
+      "DISTRIBUTION": "RANDOM",
+      "MAX": 100
+    }
+  },
+  {
+    "NAME": "int_incremental",
+    "TYPE": "INTEGER",
+    "PARAMS": {
+        "INCREMENTAL": true,
+        "START": 5,
+        "STEP": 5
+    }
+  },
+  {
+    "NAME": "float_normal",
+    "TYPE": "FLOAT",
+    "PARAMS": {
+      "DISTRIBUTION": "NORMAL",
+      "MU": 1000,
+      "SIGMA": 100
+    }
+  },
+  {
+    "NAME": "float_uniform",
+    "TYPE": "FLOAT",
+    "PARAMS": {
+      "DISTRIBUTION": "UNIFORM",
+      "MIN": 0,
+      "MAX": 1000
+    }
+  },
+  {
+    "NAME": "float_random",
+    "TYPE": "FLOAT",
+    "PARAMS": {
+      "DISTRIBUTION": "RANDOM"
+    }
+  },
+  {
+    "NAME": "float_random_scale",
+    "TYPE": "FLOAT",
+    "PARAMS": {
+      "DISTRIBUTION": "RANDOM",
+      "SCALE": 100
+    }
+  },
+  {
+    "NAME": "float_incremental",
+    "TYPE": "FLOAT",
+    "PARAMS": {
+        "INCREMENTAL": true,
+        "START": 2.5,
+        "STEP": 3.1
+    }
+  },
+  {
+    "NAME": "string",
+    "TYPE": "STRING",
+    "VALUE": "pipedrive"
+  },
+  {
+    "NAME": "string_regex",
+    "TYPE": "STRING",
+    "PARAMS": {
+      "REGEX": "[a-z0-9]{1,64}"
+    }
+  },
+  {
+    "NAME": "string_empty",
+    "TYPE": "STRING",
+    "PARAMS": {
+        "REGEX": "[a-z0-9]{1,64}",
+        "EMPTY": 0.5
+    }
+  },
+  {
+    "NAME": "string_regex_email",
+    "TYPE": "STRING",
+    "PARAMS": {
+      "REGEX": "^[a-z]{5,10}@[a-z]{5,10}\\.(com|net|org)$"
+    }
+  },
+  {
+    "NAME": "uuid",
+    "TYPE": "UUID"
+  },
+  {
+    "NAME": "object",
+    "TYPE": "OBJECT",
+    "FIELDS": [
+      {
+        "NAME": "NESTED_FIELD",
+        "TYPE": "INTEGER",
+        "PARAMS": {
+          "DISTRIBUTION": "RANDOM",
+          "MAX": 10
+        }
+      },
+      {
+        "NAME": "NESTED_FIELD_2",
+        "TYPE": "INTEGER",
+        "PARAMS": {
+          "DISTRIBUTION": "RANDOM",
+          "MAX": 10
+        }
+      }
+    ]
+  },
+  {
+    "NAME": "int_repeated_normal",
+    "REPEATED": true,
+    "TYPE": "INTEGER",
+    "PARAMS": {
+      "DISTRIBUTION": "NORMAL",
+      "MU": 1000,
+      "SIGMA": 100
+    }
+  },
+  {
+    "NAME": "object_repeated",
+    "TYPE": "OBJECT",
+    "REPEATED": true,
+    "FIELDS": [
+      {
+        "NAME": "NESTED_FIELD",
+        "TYPE": "INTEGER",
+        "PARAMS": {
+          "DISTRIBUTION": "RANDOM",
+          "MAX": 10
+        }
+      },
+      {
+        "NAME": "NESTED_FIELD_2",
+        "TYPE": "INTEGER",
+        "PARAMS": {
+          "DISTRIBUTION": "RANDOM",
+          "MAX": 10
+        }
+      }
+    ]
+  },
+  {
+    "NAME": "nullable",
+    "TYPE": "INTEGER",
+    "NULLABLE": 0.9,
+    "PARAMS": {
+      "DISTRIBUTION": "RANDOM",
+      "MAX": 10
+    }
+  }
+]

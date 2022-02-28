@@ -6,13 +6,15 @@ Supported fields:
 - `INTEGER`:
   - `VALUE`: hardcoded value
   - `INCREMENTAL`: from a `START` value, increase by a fixed `STEP` 
+    - NOTE: An optional `SIGMA` can be passed to make the delta follow a normal distribution around the `STEP`
   - `DISTRIBUTION`:
     - `NORMAL`: returns a value for a given `MU` and `SIGMA`
     - `UNIFORM`: returns a value between a `MIX` and `MAX`
     - `RANDOM`: returns a random integer, optionally limited by a `MAX` value
 - `FLOAT`:
   - `VALUE`: hardcoded value
-  - `INCREMENTAL`: from a `START` value, increase by a fixed `STEP` 
+  - `INCREMENTAL`: from a `START` value, increase by a fixed `STEP`
+    - NOTE: An optional `SIGMA` can be passed to make the delta follow a normal distribution around the `STEP`
   - `DISTRIBUTION`:
     - `NORMAL`: returns a value for a given `MU` and `SIGMA`
     - `UNIFORM`: returns a value between a `MIX` and `MAX`
@@ -28,6 +30,7 @@ Supported fields:
   - `VALUE`: hardcoded value
   - `NOW`: current timestamp
   - `INCREMENTAL`: from a `START` value, increase by a fixed `STEP`. The start value defaults to `NOW`
+    - NOTE: An optional `SIGMA` can be passed to make the delta follow a normal distribution around the `STEP`
     - NOTE: The step should follow the format "\d+[hms]"
   - Additional Params:
     - `PRECISION`: Units of the timestamp. Supported values are "s" (default), "ms", "us", "ns"
@@ -35,14 +38,15 @@ Supported fields:
   - `VALUE`: hardcoded value
   - `NOW`: current timestamp
   - `INCREMENTAL`: from a `START` value, increase by a fixed `STEP`. The start value defaults to `NOW`
-    - `STEP` should follow the format "\d+[hms]"
-    - `START` should be a unix timestamp
+    - NOTE: `STEP` should follow the format "\d+[hms]"
+    - NOTE: `START` should be a unix timestamp
+    - NOTE: An optional `SIGMA` can be passed to make the delta follow a normal distribution around the `STEP`
   - Additional Params:
     - `FORMAT`: Format of the datetime string (using the go reference date)
 - `OBJECT`:
   - `FIELDS`: Array with the nested fields
   
-Additionally, there are certain paramers common between all types:
+Additionally, there are certain parameters common between all types:
   - `NULLABLE`: Probability (`(0, 1]`) of the value being null. Defaults to 0
   - `REPEATED`: Whether the value is an array. It will create an array between 0 and 10 elements.
 

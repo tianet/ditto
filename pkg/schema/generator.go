@@ -60,7 +60,13 @@ func (f Field) generateInt() (int, error) {
 
 	if f.Params.Incremental {
 		if value, ok := C.Get(f.uuid); ok {
-			new_value := value.(int) + int((f.Params.Step).(float64))
+			var step int
+			if f.Params.Sigma != 0 {
+				step = int(distuv.Normal{Mu: f.Params.Step.(float64), Sigma: f.Params.Sigma}.Rand())
+			} else {
+				step = int((f.Params.Step).(float64))
+			}
+			new_value := value.(int) + step
 			C.Set(f.uuid, new_value, cache.NoExpiration)
 			return new_value, nil
 		} else {
@@ -90,8 +96,8 @@ func (f Field) generateFloat() (float64, error) {
 		return (f.Value).(float64), nil
 	}
 
+	var generated_float float64
 	if f.Params.Distribution != "" {
-		var generated_float float64
 
 		switch f.Params.Distribution {
 
@@ -111,36 +117,45 @@ func (f Field) generateFloat() (float64, error) {
 			return 0, fmt.Errorf("Field %s doesn't have a valid distribuition value", f.Name)
 		}
 
-		round := 2
-		if f.Params.Round != 0 {
-			round = f.Params.Round
-		}
-
-		generated_float, err := roundFloat(generated_float, round)
-		if err != nil {
-			return generated_float, err
-		}
-
-		return generated_float, nil
-
 	}
 
 	if f.Params.Incremental {
 		if value, ok := C.Get(f.uuid); ok {
-			new_value := value.(float64) + (f.Params.Step).(float64)
+			var step float64
+			if f.Params.Sigma != 0 {
+				step = distuv.Normal{Mu: f.Params.Step.(float64), Sigma: f.Params.Sigma}.Rand()
+			} else {
+				step = (f.Params.Step).(float64)
+			}
+			new_value := value.(float64) + step
+
 			C.Set(f.uuid, new_value, cache.NoExpiration)
-			return new_value, nil
+			generated_float = new_value
 		} else {
 			if f.Params.Start == nil {
 				return 0, fmt.Errorf("Field %s doesn't have a starting point", f.Name)
 			}
 			start_float := (f.Params.Start).(float64)
 			C.Set(f.uuid, start_float, cache.NoExpiration)
-			return start_float, nil
+			generated_float = start_float
 		}
 	}
 
-	return 0, fmt.Errorf("Field %s doesn't have a valid configuration", f.Name)
+	if generated_float == 0 {
+		return 0, fmt.Errorf("Field %s doesn't have a valid configuration", f.Name)
+	}
+
+	round := 2
+	if f.Params.Round != 0 {
+		round = f.Params.Round
+	}
+
+	generated_float, err := roundFloat(generated_float, round)
+	if err != nil {
+		return generated_float, err
+	}
+
+	return generated_float, nil
 }
 
 func getTimeStep(step string) (int, bool) {
@@ -181,11 +196,16 @@ func (f Field) generateTimestamp() (int, error) {
 		var new_value int
 		if value, ok := C.Get(f.uuid); ok {
 			time_step, ok := getTimeStep(f.Params.Step.(string))
-			if ok {
-				new_value = value.(int) + time_step
-			} else {
+			if !ok {
 				return 0, fmt.Errorf("Field %s doesn't have a valid step", f.Name)
 			}
+			var step int
+			if f.Params.Sigma != 0 {
+				step = int(distuv.Normal{Mu: float64(time_step), Sigma: f.Params.Sigma}.Rand())
+			} else {
+				step = time_step
+			}
+			new_value = value.(int) + step
 		} else {
 			if f.Params.Start == nil {
 				new_value = int(time.Now().Unix())

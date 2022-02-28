@@ -37,7 +37,8 @@
     "PARAMS": {
       "INCREMENTAL": true,
       "STEP": "30m",
-      "FORMAT": "2006-01-02T15:04:05Z"
+      "FORMAT": "2006-01-02T15:04:05Z",
+      "SIGMA": 5
     }
   },
   {
@@ -79,7 +80,8 @@
     "PARAMS": {
         "INCREMENTAL": true,
         "START": 5,
-        "STEP": 5
+        "STEP": 5,
+        "SIGMA": 2
     }
   },
   {
@@ -121,7 +123,8 @@
     "PARAMS": {
         "INCREMENTAL": true,
         "START": 2.5,
-        "STEP": 3.1
+        "STEP": 3.1,
+        "SIGMA": 1.3
     }
   },
   {

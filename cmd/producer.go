@@ -21,6 +21,7 @@ var (
 	SchemaPath string
 	Schedule   int
 	Count      int
+	TLS        bool
 )
 
 func validateProducerParameters() {
@@ -61,7 +62,7 @@ var producerCmd = &cobra.Command{
 		var wg sync.WaitGroup
 		schema.NewCache()
 
-		prod, err := producer.NewProducer(args[0], Host, Encoding)
+		prod, err := producer.NewProducer(args[0], Host, TLS)
 		if err != nil {
 			panic(err)
 		}
@@ -99,16 +100,16 @@ var producerCmd = &cobra.Command{
 
 						content, err := enc.Marshal(message)
 						if err != nil {
-							panic(err)
+							return err
 						}
 
 						err = prod.SendMessage(content, destination)
 						if err != nil {
 							return err
 						}
-						fmt.Printf("Message sent to %s\n", destination)
 
 						count += 1
+						fmt.Printf("Message %d sent to %s\n", count, destination)
 						if Count != -1 && count >= Count {
 							break
 						}
@@ -137,6 +138,6 @@ func init() {
 	producerCmd.PersistentFlags().StringVarP(&Host, "broker", "b", "", "Broker where to send the message")
 	producerCmd.PersistentFlags().IntVarP(&Schedule, "schedule", "S", 30, "How often should messages be sent")
 	producerCmd.PersistentFlags().IntVarP(&Count, "count", "c", -1, "How many messages it will send to each topic")
-
 	producerCmd.PersistentFlags().StringVar(&SchemaPath, "schema-path", "", "Path to the folder that contains the avro schema. The name of the file should match the name of the ditto schema.")
+	producerCmd.PersistentFlags().BoolVar(&TLS, "tls", false, "Connection uses tls or not. If active, it will NOT verify the certificate.")
 }

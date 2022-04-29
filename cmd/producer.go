@@ -1,81 +1,123 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
 
-	"github.com/Shopify/sarama"
 	"github.com/spf13/cobra"
 
-	"github.com/tianet/ditto/pkg/kafka"
-	"github.com/tianet/ditto/pkg/schema"
-	"github.com/tianet/ditto/pkg/tools"
+	"github.com/tianet/ditto/pkg/adapters/encoder"
+	"github.com/tianet/ditto/pkg/adapters/producer"
+	"github.com/tianet/ditto/pkg/application/schema"
+	"github.com/tianet/ditto/pkg/application/tools"
 )
+
+var (
+	Host       string
+	Encoding   string
+	SchemaPath string
+	Schedule   int
+	Count      int
+)
+
+func validateProducerParameters() {
+	fileInfo, err := os.Stat(Schema)
+	if err != nil {
+		panic(fmt.Errorf("Schema %s is not a valid path", Schema))
+	}
+
+	if Encoding != encoder.JSON && fileInfo.IsDir() {
+		panic(fmt.Errorf("Multiple schemas is only supported when using json encoding"))
+	}
+}
 
 // producerCmd represents the producer command
 var producerCmd = &cobra.Command{
-	Use:   "producer",
-	Short: "Produce kafka messages",
-	Long: `Produce kafka messages. It requires a running Kafka deployment.
+	Use:   "producer [type]",
+	Short: "Produce messages",
+	Long: `Produce messages. It requires a running Kafka deployment.
 
 
 	It supports multiple schemas if the name of the schema passed is a folder.
 	By default it will send the messages to a topic with the same name as the schema file.
 	If the topic flag is passed, it will send all schemas to that topic.
 	`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) != 1 {
+			return fmt.Errorf("Invalid number of parameters")
+		}
+
+		if !producer.IsValidProducerType(args[0]) {
+			return fmt.Errorf("Producer type is not supported")
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
+		validateProducerParameters()
+
 		var wg sync.WaitGroup
 		schema.NewCache()
 
-		producer := kafka.NewProducer(Broker)
+		prod, err := producer.NewProducer(args[0], Host, Encoding)
+		if err != nil {
+			panic(err)
+		}
 
-		err := filepath.WalkDir(Schema, func(path string, dir os.DirEntry, err error) error {
+		err = filepath.WalkDir(Schema, func(path string, dir os.DirEntry, err error) error {
 			if filepath.Ext(path) == ".json" {
 				fields, err := schema.GetFields(path)
 				if err != nil {
 					return err
 				}
 
+				enc, err := encoder.NewEncoder(Encoding, SchemaPath)
+				if err != nil {
+					return err
+				}
+
 				wg.Add(1)
-				go func(wg *sync.WaitGroup, path string, producer sarama.SyncProducer) {
+				go func(wg *sync.WaitGroup, path string, prod producer.Producer, enc encoder.Encoder) error {
 					defer wg.Done()
 
-					var topic string
-					if Topic == "" {
-						topic = tools.GetTopic(path)
+					var destination string
+					if Destination == "" {
+						destination = tools.GetTopic(path)
 					} else {
-						topic = Topic
+						destination = Destination
 					}
 
 					count := 0
 
 					for {
 						message, err := schema.GenerateMessage(fields)
-
-						output, err := json.Marshal(message)
 						if err != nil {
-							panic(err)
+							return err
 						}
-						msg := kafka.PrepareMessage(string(output), topic)
-						_, _, err = producer.SendMessage(msg)
+
+						content, err := enc.Marshal(message)
 						if err != nil {
 							panic(err)
 						}
 
-						fmt.Printf("New message sent to topic %s\n", topic)
+						err = prod.SendMessage(content, destination)
+						if err != nil {
+							return err
+						}
+						fmt.Printf("Message sent to %s\n", destination)
 
 						count += 1
 						if Count != -1 && count >= Count {
 							break
 						}
+
 						time.Sleep(time.Duration(Schedule) * time.Second)
 					}
+					return nil
 
-				}(&wg, path, producer)
+				}(&wg, path, prod, enc)
 			}
 			return nil
 		})
@@ -89,5 +131,12 @@ var producerCmd = &cobra.Command{
 }
 
 func init() {
-	kafkaCmd.AddCommand(producerCmd)
+	rootCmd.AddCommand(producerCmd)
+
+	producerCmd.PersistentFlags().StringVarP(&Encoding, "encoding", "e", encoder.JSON, "Encoding used for the messages")
+	producerCmd.PersistentFlags().StringVarP(&Host, "broker", "b", "", "Broker where to send the message")
+	producerCmd.PersistentFlags().IntVarP(&Schedule, "schedule", "S", 30, "How often should messages be sent")
+	producerCmd.PersistentFlags().IntVarP(&Count, "count", "c", -1, "How many messages it will send to each topic")
+
+	producerCmd.PersistentFlags().StringVar(&SchemaPath, "schema-path", "", "Path to the folder that contains the avro schema. The name of the file should match the name of the ditto schema.")
 }

@@ -20,7 +20,7 @@ var (
 
 // serverCmd represents the server command
 var serverCmd = &cobra.Command{
-	Use:   "server",
+	Use:   "server [type]",
 	Short: "Rest API for schemas provided",
 	Long: `Rest API for the schemas provided.
 

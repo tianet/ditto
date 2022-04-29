@@ -5,6 +5,8 @@ go 1.17
 require (
 	github.com/Shopify/sarama v1.32.0
 	github.com/google/uuid v1.1.2
+	github.com/gorilla/mux v1.8.0
+	github.com/linkedin/goavro/v2 v2.11.1
 	github.com/lucasjones/reggen v0.0.0-20200904144131-37ba4fa293bb
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/spf13/cobra v1.3.0

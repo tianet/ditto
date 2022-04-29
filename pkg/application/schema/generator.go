@@ -144,7 +144,6 @@ func (f Field) generateFloat() (float64, error) {
 	if generated_float == 0 {
 		return 0, fmt.Errorf("Field %s doesn't have a valid configuration", f.Name)
 	}
-
 	round := 2
 	if f.Params.Round != 0 {
 		round = f.Params.Round
@@ -156,6 +155,7 @@ func (f Field) generateFloat() (float64, error) {
 	}
 
 	return generated_float, nil
+
 }
 
 func getTimeStep(step string) (int, bool) {

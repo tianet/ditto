@@ -10,7 +10,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Schema string
+var (
+	Schema      string
+	Destination string
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -22,9 +25,9 @@ var rootCmd = &cobra.Command{
 
 	Usage:
 		To serve message as an rest api:
-			ditto http server -s schema.json -p 8080
+			ditto server -t rest -s schema.json -p 8080
 		To send messages to kafka (requires a running Kafka cluster):
-			ditto kafka producer -s schema.json -b localhost:9092 -S 3 [-c 2] [-t sample]
+			ditto producer -t kafka -s schema.json -b localhost:9092 -S 3 [-c 2] [-d sample]
 	`,
 }
 
@@ -36,4 +39,6 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.PersistentFlags().StringVarP(&Schema, "schema", "s", "", "Schema for the messages")
+	rootCmd.PersistentFlags().StringVarP(&Destination, "destination", "d", "", "Destination (either topic, endpoint, table,...) to use. Defaults to the schema file name.")
 }

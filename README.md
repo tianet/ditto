@@ -5,7 +5,7 @@ Ditto is a cli tool to mock an API or a kafka producer.
 Supported fields:
 - `INTEGER`:
   - `VALUE`: hardcoded value
-  - `INCREMENTAL`: from a `START` value, increase by a fixed `STEP` 
+  - `INCREMENTAL`: from a `START` value, increase by a fixed `STEP`
     - NOTE: An optional `SIGMA` can be passed to make the delta follow a normal distribution around the `STEP`
   - `DISTRIBUTION`:
     - `NORMAL`: returns a value for a given `MU` and `SIGMA`
@@ -34,7 +34,7 @@ Supported fields:
     - NOTE: The step should follow the format "\d+[hms]"
   - Additional Params:
     - `PRECISION`: Units of the timestamp. Supported values are "s" (default), "ms", "us", "ns"
-- `DATETIME`: 
+- `DATETIME`:
   - `VALUE`: hardcoded value
   - `NOW`: current timestamp
   - `INCREMENTAL`: from a `START` value, increase by a fixed `STEP`. The start value defaults to `NOW`
@@ -45,7 +45,7 @@ Supported fields:
     - `FORMAT`: Format of the datetime string (using the go reference date)
 - `OBJECT`:
   - `FIELDS`: Array with the nested fields
-  
+
 Additionally, there are certain parameters common between all types:
   - `NULLABLE`: Probability (`(0, 1]`) of the value being null. Defaults to 0
   - `REPEATED`: Whether the value is an array. It will create an array between 0 and 10 elements.
@@ -56,7 +56,7 @@ Additionally, there are certain parameters common between all types:
 To serve message as an rest api:
 
 ``` sh
-ditto http server -s schema.json -p 8080 
+ditto server rest -s schema.json -p 8080
 ```
 
 If the schema is a folder, it will create a unique endpoint for each schema present using the name of the file as the url.
@@ -65,7 +65,7 @@ If the schema is a folder, it will create a unique endpoint for each schema pres
 To send messages to kafka (requires a running Kafka cluster):
 
 ``` sh
-ditto kafka producer -s schema.json -b localhost:9092 -S 3 [-c 2] [-t sample]
+ditto producer kafka -s schema.json -b localhost:9092 -S 3 [-c 2] [-d sample]
 ```
 
 If the schema is a folder, it will send messages to a topic that matches the name of the file. If the `-t` flag is passed, it will send all messages to that topic.
